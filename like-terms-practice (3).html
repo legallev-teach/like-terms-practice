@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Like Terms Practice</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --x: #d32f2f;
+    --y: #1565c0;
+    --bg: #fffdf7;
+    --card: #ffffff;
+    --border: #e0d8cc;
+    --text: #222;
+    --green: #2e7d32;
+    --orange: #e65100;
+    --yellow-bg: #fff8e1;
+    --green-bg: #e8f5e9;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 16px; }
+
+  h1 { font-family: 'Fredoka One', cursive; text-align: center; font-size: 1.9rem; margin-bottom: 2px; }
+  .subtitle { text-align: center; color: #888; font-size: 0.9rem; margin-bottom: 18px; }
+
+  .legend { display: flex; gap: 18px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; font-weight: 800; font-size: 0.95rem; }
+  .lx { color: var(--x); } .ly { color: var(--y); }
+
+  .mode-tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 18px; }
+  .tab { font-family: 'Nunito', sans-serif; font-weight: 800; padding: 7px 20px; border-radius: 30px; border: 2px solid var(--border); background: white; cursor: pointer; font-size: 0.9rem; transition: all 0.15s; }
+  .tab.active { background: #222; color: white; border-color: #222; }
+
+  .progress-wrap { max-width: 580px; margin: 0 auto 8px; background: #eee; border-radius: 20px; height: 9px; overflow: hidden; }
+  .progress-bar { height: 100%; border-radius: 20px; background: linear-gradient(90deg, var(--x), var(--y)); transition: width 0.4s; }
+  .score-line { text-align: center; font-size: 0.85rem; color: #aaa; margin-bottom: 14px; }
+
+  .card { background: var(--card); border-radius: 16px; padding: 22px 24px; margin-bottom: 18px; box-shadow: 0 3px 18px rgba(0,0,0,0.07); border: 1px solid var(--border); max-width: 580px; margin-left: auto; margin-right: auto; }
+
+  .step-lbl { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #bbb; margin-bottom: 10px; }
+
+  .expr { font-family: 'Fredoka One', cursive; font-size: 1.55rem; line-height: 1.9; display: inline; }
+  .tx { color: var(--x); }
+  .ty { color: var(--y); }
+
+  .sign-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .sign-term { font-family: 'Fredoka One', cursive; font-size: 1.15rem; min-width: 55px; }
+  .reveal-btn { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.8rem; padding: 4px 12px; border: 2px solid var(--border); background: white; border-radius: 20px; cursor: pointer; }
+  .reveal-btn:hover { background: #f5f5f5; }
+  .reveal-btn:disabled { opacity: 0.4; cursor: default; }
+  .sign-answer { font-weight: 800; font-size: 0.85rem; display: none; padding: 4px 11px; border-radius: 8px; line-height: 1.4; }
+  .sign-answer.pos { background: #e8f5e9; color: #1b5e20; }
+  .sign-answer.neg { background: #fce4ec; color: #880e4f; }
+  .sign-answer.show { display: inline-block; }
+
+  /* Step 3 regroup layout */
+  .eq-line { display: flex; align-items: center; gap: 10px; margin: 4px 0; }
+  .eq-sign { font-family: 'Fredoka One', cursive; font-size: 1.4rem; color: #ccc; flex-shrink: 0; width: 24px; }
+  .regroup-arrow {
+    display: flex; align-items: center; gap: 8px; margin: 6px 0 6px 34px;
+    color: #f4a261; font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .regroup-arrow .arr { font-size: 1.7rem; line-height: 1; }
+
+  .hbox { border-radius: 8px; padding: 10px 13px; font-size: 0.88rem; margin-top: 10px; display: none; line-height: 1.5; }
+  .hbox.show { display: block; }
+  .hbox.hint { background: var(--yellow-bg); border-left: 4px solid #ffc107; cursor: pointer; }
+  .hbox.money { background: var(--green-bg); border-left: 4px solid #66bb6a; }
+
+  .ans-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .ans-var { font-family: 'Fredoka One', cursive; font-size: 1.4rem; font-weight: 900; }
+  .ans-var.x { color: var(--x); }
+  .ans-var.y { color: var(--y); }
+  .ans-sign { font-family: 'Fredoka One', cursive; font-size: 1.4rem; }
+
+  input.coeff {
+    width: 72px; font-family: 'Fredoka One', cursive; font-size: 1.3rem;
+    border: 2.5px solid var(--border); border-radius: 10px; padding: 5px 8px;
+    outline: none; text-align: center; transition: border 0.2s; background: white;
+  }
+  input.coeff:focus { border-color: #999; }
+  input.coeff.ok { border-color: var(--green); background: #f1f8e9; }
+  input.coeff.bad { border-color: var(--orange); background: #fff3e0; }
+
+  .sign-toggle { display: flex; gap: 5px; }
+  .stbtn { font-family: 'Fredoka One', cursive; font-size: 1.3rem; width: 44px; height: 42px; border-radius: 10px; border: 2.5px solid var(--border); background: white; cursor: pointer; transition: all 0.15s; color: #bbb; }
+  .stbtn.selected { color: white; border-color: transparent; }
+  .stbtn.plus.selected { background: var(--green); }
+  .stbtn.minus.selected { background: var(--orange); }
+
+  button.action { font-family: 'Nunito', sans-serif; font-weight: 800; border: 2px solid transparent; border-radius: 10px; padding: 8px 18px; cursor: pointer; font-size: 0.9rem; transition: transform 0.1s; }
+  button.action:active { transform: scale(0.97); }
+  .btn-go { background: #222; color: white; }
+  .btn-hint { background: var(--yellow-bg); color: #7a5500; border-color: #ffc107 !important; }
+  .btn-money { background: var(--green-bg); color: #1b5e20; border-color: #81c784 !important; }
+  .btn-next { background: var(--green); color: white; display: none; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+
+  .feedback { font-weight: 800; font-size: 0.95rem; margin-top: 10px; min-height: 22px; }
+  .feedback.ok { color: var(--green); }
+  .feedback.bad { color: var(--orange); }
+
+  .done-card { text-align: center; display: none; }
+  .done-card h2 { font-family: 'Fredoka One', cursive; font-size: 2rem; margin: 10px 0 6px; }
+  .done-emoji { font-size: 3rem; }
+
+  @media(max-width:480px){ .expr { font-size: 1.25rem; } h1 { font-size: 1.5rem; } }
+</style>
+</head>
+<body>
+
+<h1>🎨 Like Terms</h1>
+<p class="subtitle">Signs travel with their term — like luggage!</p>
+
+<div class="legend">
+  <span class="lx">■ x terms (red)</span>
+  <span class="ly">■ y terms (blue)</span>
+</div>
+
+<div class="mode-tabs">
+  <button class="tab active" id="tabGuided" onclick="setMode('guided')">🧭 Guided</button>
+  <button class="tab" id="tabPractice" onclick="setMode('practice')">⚡ Practice</button>
+</div>
+
+<div class="score-line">Question <span id="qNum">1</span> of 8</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+
+<!-- GUIDED CARD -->
+<div class="card" id="guidedCard">
+
+  <!-- Step 0: sign reveal -->
+  <div id="s0">
+    <div class="step-lbl">Step 1 — What is the sign of each term?</div>
+    <div style="margin-bottom:14px;"><span class="expr" id="s0expr"></span></div>
+    <div id="signChecks"></div>
+    <p style="font-size:0.82rem;color:#aaa;margin:10px 0 14px;">Tap each term to reveal its sign. A term with no written sign is always <strong>positive</strong>.</p>
+    <button class="action btn-go" onclick="goS1()">Next →</button>
+  </div>
+
+  <!-- Step 1: original -->
+  <div id="s1" style="display:none">
+    <div class="step-lbl">Step 2 — The original expression</div>
+    <div><span class="expr" id="s1expr"></span></div>
+    <p style="font-size:0.82rem;color:#888;margin-top:8px;">Each coloured sign belongs to its term. They always travel together.</p>
+    <div class="btn-row"><button class="action btn-go" onclick="goS2()">Next: Rearrange →</button></div>
+  </div>
+
+  <!-- Step 2: rearranged -->
+  <div id="s2" style="display:none">
+    <div class="step-lbl">Step 3 — Regroup the like terms</div>
+    <div class="eq-line">
+      <span class="eq-sign"></span>
+      <span class="expr" id="s2orig"></span>
+    </div>
+    <div class="regroup-arrow">
+      <span class="arr">↓</span>
+      <span>regrouped — same terms, same signs, just reordered</span>
+    </div>
+    <div class="eq-line">
+      <span class="eq-sign">=</span>
+      <span class="expr" id="s2rearr"></span>
+    </div>
+    <div class="hbox hint show" id="s2hint" onclick="toggleHint2()" style="margin-top:12px;">
+      <span id="s2hintQ">🤔 <strong>What changed between the two lines? What stayed exactly the same?</strong> <span style="font-size:0.8rem;opacity:0.6;">(tap to reveal)</span></span>
+      <div id="s2hintAnswer" style="display:none;margin-top:7px;">
+        Only the <em>order</em> changed. Every term kept its sign — both the <span style="color:var(--x);font-weight:800;">red terms</span> and the <span style="color:var(--y);font-weight:800;">blue terms</span>. The two lines are equal!
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="action btn-go" onclick="goS3()">Next: Simplify →</button>
+    </div>
+  </div>
+
+  <!-- Step 3: answer -->
+  <div id="s3" style="display:none">
+    <div class="step-lbl">Step 4 — Simplify</div>
+    <div class="eq-line" style="margin-bottom:4px;">
+      <span class="eq-sign"></span>
+      <span class="expr" id="s3expr"></span>
+    </div>
+    <div class="eq-line" style="margin-top:8px;">
+      <span class="eq-sign">=</span>
+      <div class="ans-row" id="guidedAnsRow"></div>
+    </div>
+    <div class="hbox hint" id="s3hint"></div>
+    <div class="hbox money" id="s3money"></div>
+    <div class="feedback" id="s3fb"></div>
+    <div class="btn-row">
+      <button class="action btn-go" onclick="checkGuided()">✓ Check</button>
+      <button class="action btn-hint" onclick="showGuidedHint()">💡 Hint</button>
+      <button class="action btn-money" onclick="showGuidedMoney()">💰 Money trick</button>
+      <button class="action btn-next" id="btnGNext" onclick="nextQ()">Next →</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- PRACTICE CARD -->
+<div class="card" id="practiceCard" style="display:none">
+
+  <!-- Practice step A: rearrange (Q1-4 only) -->
+  <div id="pStepA">
+    <div class="step-lbl">Step 1 — Rearrange: group the like terms</div>
+    <div class="eq-line" style="margin-bottom:6px;">
+      <span class="eq-sign"></span>
+      <span class="expr" id="pExprOrig"></span>
+    </div>
+    <div class="regroup-arrow">
+      <span class="arr">↓</span>
+      <span>Fill in the missing terms. The sign is already shown — just type the number!</span>
+    </div>
+    <div class="eq-line">
+      <span class="eq-sign">=</span>
+      <div id="pRearrRow" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"></div>
+    </div>
+    <div class="feedback" id="pRearrFb"></div>
+    <div class="btn-row">
+      <button class="action btn-go" onclick="checkPRearr()">&#10003; Check</button>
+      <button class="action btn-next" id="btnPRearrNext" onclick="goPStepB()" style="display:none;">Next: Simplify &#8594;</button>
+    </div>
+  </div>
+
+  <!-- Practice step B: simplify -->
+  <div id="pStepB" style="display:none">
+    <div class="step-lbl" id="pStepBLabel">Step 2 &#8212; Simplify</div>
+    <div class="eq-line" style="margin-bottom:4px;">
+      <span class="eq-sign"></span>
+      <span class="expr" id="pExprRearr"></span>
+    </div>
+    <div class="eq-line" style="margin-top:8px;">
+      <span class="eq-sign">=</span>
+      <div class="ans-row" id="practiceAnsRow"></div>
+    </div>
+    <div class="hbox hint" id="practiceHint"></div>
+    <div class="hbox money" id="practiceMoney"></div>
+    <div class="feedback" id="practiceFb"></div>
+    <div class="btn-row">
+      <button class="action btn-go" onclick="checkPractice()">&#10003; Check</button>
+      <button class="action btn-hint" onclick="showPracticeHint()">&#128161; Hint</button>
+      <button class="action btn-money" onclick="showPracticeMoney()">&#128176; Money trick</button>
+      <button class="action btn-next" id="btnPNext" onclick="nextQ()">Next &#8594;</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- DONE -->
+<div class="card done-card" id="doneCard">
+  <div class="done-emoji">🎉</div>
+  <h2>Well done!</h2>
+  <p id="doneScore" style="color:#666;margin-bottom:16px;"></p>
+  <button class="action btn-go" onclick="restart()">Play again</button>
+</div>
+
+<script>
+const Qs = [
+  {x1:3,  x2:-4, y1:5,  y2:-3},
+  {x1:2,  x2:-5, y1:4,  y2:-1},
+  {x1:6,  x2:-2, y1:1,  y2:-4},
+  {x1:4,  x2:-7, y1:3,  y2:2 },
+  {x1:5,  x2:-3, y1:-2, y2:4 },
+  {x1:1,  x2:-6, y1:7,  y2:-3},
+  {x1:8,  x2:-3, y1:2,  y2:-5},
+  {x1:4,  x2:-9, y1:6,  y2:-2},
+];
+const TOGGLE_FROM = 5;
+let cur = 0, score = 0, mode = 'guided';
+
+// ── Expression HTML ────────────────────────────────────────────────────────
+
+function termHTML(c, v, isFirst) {
+  const cls = v === 'x' ? 'tx' : 'ty';
+  const abs = Math.abs(c) === 1 ? '' : Math.abs(c);
+  let text;
+  if (isFirst) {
+    text = (c < 0 ? '−' : '') + abs + v;
+  } else {
+    text = (c < 0 ? ' −' : ' +') + abs + v;
+  }
+  return `<span class="${cls}">${text}</span>`;
+}
+
+function exprHTML(terms) {
+  let html = '', first = true;
+  for (const {c, v} of terms) {
+    html += termHTML(c, v, first);
+    first = false;
+  }
+  return html;
+}
+
+function origTerms(q) { return [{c:q.x1,v:'x'},{c:q.y1,v:'y'},{c:q.x2,v:'x'},{c:q.y2,v:'y'}]; }
+function rearrTerms(q) { return [{c:q.x1,v:'x'},{c:q.x2,v:'x'},{c:q.y1,v:'y'},{c:q.y2,v:'y'}]; }
+function setExpr(id, terms) { document.getElementById(id).innerHTML = exprHTML(terms); }
+
+// ── Sign reveal ────────────────────────────────────────────────────────────
+
+function buildSignChecks(q) {
+  const terms = origTerms(q);
+  const container = document.getElementById('signChecks');
+  container.innerHTML = '';
+  terms.forEach(({c, v}, i) => {
+    const cls = v === 'x' ? 'tx' : 'ty';
+    const abs = Math.abs(c) === 1 ? '' : Math.abs(c);
+    // Show term exactly as it appears in the expression
+    const display = i === 0
+      ? (c < 0 ? `−${abs}${v}` : `${abs}${v}`)
+      : (c < 0 ? `−${abs}${v}` : `+${abs}${v}`);
+
+    // Is the sign explicitly written in the expression?
+    const signWritten = !(i === 0 && c > 0); // first positive term has no written sign
+
+    let ansText, ansClass;
+    if (c > 0) {
+      ansClass = 'pos';
+      ansText = signWritten
+        ? '✔ POSITIVE (the + sign is written)'
+        : '✔ POSITIVE (no sign written means positive)';
+    } else {
+      ansClass = 'neg';
+      ansText = '✔ NEGATIVE';
+    }
+
+    const row = document.createElement('div');
+    row.className = 'sign-row';
+    row.innerHTML = `
+      <span class="sign-term ${cls}">${display}</span>
+      <button class="reveal-btn" onclick="revealSign(this,'sa${i}')">What's the sign?</button>
+      <span class="sign-answer ${ansClass}" id="sa${i}">${ansText}</span>`;
+    container.appendChild(row);
+  });
+}
+
+function revealSign(btn, id) {
+  document.getElementById(id).classList.add('show');
+  btn.disabled = true;
+}
+
+function toggleHint2() {
+  const a = document.getElementById('s2hintAnswer');
+  a.style.display = a.style.display === 'none' ? 'block' : 'none';
+}
+
+// ── Answer row ─────────────────────────────────────────────────────────────
+
+function buildAnsRow(rowId, q) {
+  const xAns = q.x1 + q.x2;
+  const yAns = q.y1 + q.y2;
+  const useToggle = cur >= TOGGLE_FROM;
+  const row = document.getElementById(rowId);
+  row.innerHTML = '';
+
+  if (useToggle) {
+    row.innerHTML = `
+      <div class="sign-toggle">
+        <button class="stbtn plus" id="${rowId}Xplus" onclick="selectSign('${rowId}X','plus')">+</button>
+        <button class="stbtn minus" id="${rowId}Xminus" onclick="selectSign('${rowId}X','minus')">−</button>
+      </div>
+      <input class="coeff" id="${rowId}Xinput" placeholder="?" maxlength="3" autocomplete="off">
+      <span class="ans-var x">x</span>
+      <div class="sign-toggle" style="margin-left:4px;">
+        <button class="stbtn plus" id="${rowId}Yplus" onclick="selectSign('${rowId}Y','plus')">+</button>
+        <button class="stbtn minus" id="${rowId}Yminus" onclick="selectSign('${rowId}Y','minus')">−</button>
+      </div>
+      <input class="coeff" id="${rowId}Yinput" placeholder="?" maxlength="3" autocomplete="off">
+      <span class="ans-var y">y</span>`;
+  } else {
+    const xNeg = xAns < 0;
+    const yNeg = yAns < 0;
+    row.innerHTML = `
+      ${xNeg ? `<span class="ans-sign tx">−</span>` : ''}
+      <input class="coeff" id="${rowId}Xinput" placeholder="?" maxlength="3" autocomplete="off">
+      <span class="ans-var x">x</span>
+      <span class="ans-sign" style="color:${yNeg ? 'var(--y)' : '#bbb'};">${yNeg ? '−' : '+'}</span>
+      <input class="coeff" id="${rowId}Yinput" placeholder="?" maxlength="3" autocomplete="off">
+      <span class="ans-var y">y</span>`;
+  }
+
+  setTimeout(() => document.getElementById(rowId + 'Xinput')?.focus(), 60);
+}
+
+function selectSign(prefix, sign) {
+  document.getElementById(prefix + 'plus').classList.toggle('selected', sign === 'plus');
+  document.getElementById(prefix + 'minus').classList.toggle('selected', sign === 'minus');
+}
+
+// ── Check ──────────────────────────────────────────────────────────────────
+
+function getAnswer(rowId, q) {
+  const xAns = q.x1 + q.x2;
+  const yAns = q.y1 + q.y2;
+  const useToggle = cur >= TOGGLE_FROM;
+
+  const xInput = document.getElementById(rowId + 'Xinput');
+  const yInput = document.getElementById(rowId + 'Yinput');
+  let xVal = parseInt(xInput.value.trim());
+  let yVal = parseInt(yInput.value.trim());
+
+  if (useToggle) {
+    if (document.getElementById(rowId + 'Xminus')?.classList.contains('selected')) xVal = -Math.abs(xVal);
+    if (document.getElementById(rowId + 'Yminus')?.classList.contains('selected')) yVal = -Math.abs(yVal);
+  } else {
+    if (xAns < 0) xVal = -Math.abs(xVal);
+    if (yAns < 0) yVal = -Math.abs(yVal);
+  }
+
+  return { xOk: xVal === xAns, yOk: yVal === yAns, xInput, yInput };
+}
+
+// ── Guided ─────────────────────────────────────────────────────────────────
+
+function loadGuided() {
+  const q = Qs[cur];
+  ['s0','s1','s2','s3'].forEach(id => document.getElementById(id).style.display = 'none');
+  document.getElementById('s0').style.display = 'block';
+  document.getElementById('s3hint').classList.remove('show');
+  document.getElementById('s3money').classList.remove('show');
+  document.getElementById('s3fb').textContent = '';
+  document.getElementById('btnGNext').style.display = 'none';
+  document.getElementById('s2hintAnswer').style.display = 'none';
+
+  setExpr('s0expr', origTerms(q));
+  buildSignChecks(q);
+  setExpr('s1expr', origTerms(q));
+  setExpr('s2orig', origTerms(q));
+  setExpr('s2rearr', rearrTerms(q));
+  setExpr('s3expr', rearrTerms(q));
+  buildAnsRow('guidedAnsRow', q);
+}
+
+function goS1() { document.getElementById('s0').style.display='none'; document.getElementById('s1').style.display='block'; }
+function goS2() { document.getElementById('s1').style.display='none'; document.getElementById('s2').style.display='block'; }
+function goS3() { document.getElementById('s2').style.display='none'; document.getElementById('s3').style.display='block'; }
+
+function checkGuided() {
+  const q = Qs[cur];
+  const {xOk, yOk, xInput, yInput} = getAnswer('guidedAnsRow', q);
+  xInput.className = 'coeff ' + (xOk ? 'ok' : 'bad');
+  yInput.className = 'coeff ' + (yOk ? 'ok' : 'bad');
+  const fb = document.getElementById('s3fb');
+  if (xOk && yOk) {
+    fb.textContent = '✅ Perfect!'; fb.className = 'feedback ok'; score++;
+    document.getElementById('btnGNext').style.display = 'inline-block';
+  } else {
+    fb.className = 'feedback bad';
+    if (!xOk && !yOk) fb.textContent = '❌ Both need another look — try a hint!';
+    else if (!xOk) fb.textContent = '❌ Check the x terms — try the money trick!';
+    else fb.textContent = '❌ Check the y terms!';
+  }
+  updateProgress();
+}
+
+function showGuidedHint() {
+  const q = Qs[cur];
+  const b = document.getElementById('s3hint');
+  b.innerHTML = `<b>x terms:</b> ${q.x1} + (${q.x2}) = <b>${q.x1+q.x2}</b><br>Think: start at ${q.x1}, move ${q.x2} steps on the number line.`;
+  b.classList.add('show');
+}
+
+function showGuidedMoney() {
+  const q = Qs[cur];
+  const xA = q.x1+q.x2, yA = q.y1+q.y2;
+  const b = document.getElementById('s3money');
+  b.innerHTML =
+    `💰 <b>x:</b> I have $${Math.abs(q.x1)}. I ${q.x2 < 0 ? 'owe $'+Math.abs(q.x2) : 'earn $'+q.x2}.` +
+    ` I ${xA >= 0 ? 'have $'+xA : 'owe $'+Math.abs(xA)}. &rarr; <b>${xA}x</b><br>` +
+    `💰 <b>y:</b> I ${q.y1 >= 0 ? 'have $'+q.y1 : 'owe $'+Math.abs(q.y1)}.` +
+    ` I ${q.y2 < 0 ? 'owe $'+Math.abs(q.y2) : 'earn $'+q.y2}.` +
+    ` I ${yA >= 0 ? 'have $'+yA : 'owe $'+Math.abs(yA)}. &rarr; <b>${yA}y</b>`;
+  b.classList.add('show');
+}
+
+// ── Practice ──────────────────────────────────────────────────────────────────────────
+
+const REARRANGE_UPTO = 4; // show rearrange step for Q1-4 (0-indexed: 0-3)
+
+function loadPractice() {
+  const q = Qs[cur];
+  const showRearrange = cur < REARRANGE_UPTO;
+
+  // Reset both steps
+  document.getElementById('pStepA').style.display = showRearrange ? 'block' : 'none';
+  document.getElementById('pStepB').style.display = showRearrange ? 'none' : 'block';
+  document.getElementById('pRearrFb').textContent = '';
+  document.getElementById('btnPRearrNext').style.display = 'none';
+  document.getElementById('practiceHint').classList.remove('show');
+  document.getElementById('practiceMoney').classList.remove('show');
+  document.getElementById('practiceFb').textContent = '';
+  document.getElementById('btnPNext').style.display = 'none';
+
+  // Update label for simplify-only questions
+  document.getElementById('pStepBLabel').textContent = showRearrange
+    ? 'Step 2 — Simplify'
+    : 'Simplify completely';
+
+  setExpr('pExprOrig', origTerms(q));
+  setExpr('pExprRearr', rearrTerms(q));
+
+  if (showRearrange) {
+    buildRearrRow(q);
+  } else {
+    buildAnsRow('practiceAnsRow', q);
+  }
+}
+
+// Build the fill-in-the-blank rearrange row
+// Shows: [given x1] [blank x2] [given y1] [blank y2]
+// Blanks show the sign, student types the absolute number
+function buildRearrRow(q) {
+  const row = document.getElementById('pRearrRow');
+  row.innerHTML = '';
+
+  // x1 (given, first position)
+  const x1HTML = `<span class="expr tx">${Math.abs(q.x1) === 1 ? '' : Math.abs(q.x1)}x</span>`;
+
+  // x2 blank: show sign + [box] + x (sign is coloured)
+  const x2sign = q.x2 < 0 ? '−' : '+';
+  const x2HTML = `
+    <span class="tx" style="font-family:'Fredoka One',cursive;font-size:1.4rem;">${x2sign}</span>
+    <input class="coeff" id="pBlankX" placeholder="?" maxlength="2" autocomplete="off" style="width:60px;">
+    <span class="ans-var x">x</span>`;
+
+  // y1 (given)
+  const y1sign = q.y1 < 0 ? '−' : '+';
+  const y1abs = Math.abs(q.y1) === 1 ? '' : Math.abs(q.y1);
+  const y1HTML = `<span class="ty" style="font-family:'Fredoka One',cursive;font-size:1.4rem;margin-left:4px;">${y1sign}${y1abs}y</span>`;
+
+  // y2 blank: show sign + [box] + y
+  const y2sign = q.y2 < 0 ? '−' : '+';
+  const y2HTML = `
+    <span class="ty" style="font-family:'Fredoka One',cursive;font-size:1.4rem;">${y2sign}</span>
+    <input class="coeff" id="pBlankY" placeholder="?" maxlength="2" autocomplete="off" style="width:60px;">
+    <span class="ans-var y">y</span>`;
+
+  row.innerHTML = x1HTML + x2HTML + y1HTML + y2HTML;
+  setTimeout(() => document.getElementById('pBlankX')?.focus(), 60);
+}
+
+function checkPRearr() {
+  const q = Qs[cur];
+  const xInput = document.getElementById('pBlankX');
+  const yInput = document.getElementById('pBlankY');
+  const fb = document.getElementById('pRearrFb');
+
+  const xRaw = xInput.value.trim();
+  const yRaw = yInput.value.trim();
+
+  // Guard: typed a sign character?
+  const hasSigns = v => v.includes('-') || v.includes('+') || v.includes('−');
+  if (hasSigns(xRaw) || hasSigns(yRaw)) {
+    if (hasSigns(xRaw)) { xInput.className = 'coeff bad'; xInput.value = ''; }
+    if (hasSigns(yRaw)) { yInput.className = 'coeff bad'; yInput.value = ''; }
+    fb.textContent = '❗ Just type the number — the sign is already shown in front of the box!';
+    fb.className = 'feedback bad';
+    (hasSigns(xRaw) ? xInput : yInput).focus();
+    return;
+  }
+
+  const xOk = parseInt(xRaw) === Math.abs(q.x2);
+  const yOk = parseInt(yRaw) === Math.abs(q.y2);
+  xInput.className = 'coeff ' + (xOk ? 'ok' : 'bad');
+  yInput.className = 'coeff ' + (yOk ? 'ok' : 'bad');
+
+  if (xOk && yOk) {
+    fb.textContent = '✅ Correct! Now simplify.';
+    fb.className = 'feedback ok';
+    document.getElementById('btnPRearrNext').style.display = 'inline-block';
+  } else {
+    fb.className = 'feedback bad';
+    if (!xOk && !yOk) fb.textContent = '❌ Both blanks need checking. Remember: just the number, sign is shown!';
+    else if (!xOk) fb.textContent = '❌ Check the x blank.';
+    else fb.textContent = '❌ Check the y blank.';
+  }
+}
+
+function goPStepB() {
+  document.getElementById('pStepA').style.display = 'none';
+  document.getElementById('pStepB').style.display = 'block';
+  buildAnsRow('practiceAnsRow', Qs[cur]);
+}
+
+function checkPractice() {
+  const q = Qs[cur];
+  const {xOk, yOk, xInput, yInput} = getAnswer('practiceAnsRow', q);
+  xInput.className = 'coeff ' + (xOk ? 'ok' : 'bad');
+  yInput.className = 'coeff ' + (yOk ? 'ok' : 'bad');
+  const fb = document.getElementById('practiceFb');
+  if (xOk && yOk) {
+    fb.textContent = '✅ Correct!'; fb.className = 'feedback ok'; score++;
+    document.getElementById('btnPNext').style.display = 'inline-block';
+  } else {
+    fb.textContent = '❌ Not quite — try a hint!'; fb.className = 'feedback bad';
+  }
+  updateProgress();
+}
+
+function showPracticeHint() {
+  const q = Qs[cur];
+  document.getElementById('practiceHint').innerHTML =
+    `<b>x:</b> ${q.x1} + (${q.x2}) = <b>${q.x1+q.x2}</b> &nbsp;|&nbsp; <b>y:</b> ${q.y1} + (${q.y2}) = <b>${q.y1+q.y2}</b>`;
+  document.getElementById('practiceHint').classList.add('show');
+}
+
+function showPracticeMoney() {
+  const q = Qs[cur];
+  const xA = q.x1+q.x2, yA = q.y1+q.y2;
+  document.getElementById('practiceMoney').innerHTML =
+    `💰 <b>x:</b> have $${Math.abs(q.x1)}, ${q.x2 < 0 ? 'owe $'+Math.abs(q.x2) : 'earn $'+q.x2} &rarr; <b>${xA}x</b><br>` +
+    `💰 <b>y:</b> ${q.y1 >= 0 ? 'have $'+q.y1 : 'owe $'+Math.abs(q.y1)}, ${q.y2 < 0 ? 'owe $'+Math.abs(q.y2) : 'earn $'+q.y2} &rarr; <b>${yA}y</b>`;
+  document.getElementById('practiceMoney').classList.add('show');
+}
+// ── Nav ────────────────────────────────────────────────────────────────────
+
+function nextQ() {
+  cur++;
+  updateProgress();
+  if (cur >= Qs.length) { showDone(); return; }
+  if (mode === 'guided') loadGuided(); else loadPractice();
+}
+
+function updateProgress() {
+  document.getElementById('progressBar').style.width = (cur / Qs.length * 100) + '%';
+  document.getElementById('qNum').textContent = Math.min(cur + 1, Qs.length);
+}
+
+function showDone() {
+  document.getElementById('guidedCard').style.display = 'none';
+  document.getElementById('practiceCard').style.display = 'none';
+  document.getElementById('doneCard').style.display = 'block';
+  document.getElementById('doneScore').textContent = `You got ${score} out of ${Qs.length} right!`;
+}
+
+function restart() {
+  cur = 0; score = 0;
+  document.getElementById('doneCard').style.display = 'none';
+  updateProgress();
+  if (mode === 'guided') { document.getElementById('guidedCard').style.display='block'; loadGuided(); }
+  else { document.getElementById('practiceCard').style.display='block'; loadPractice(); }
+}
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('tabGuided').classList.toggle('active', m === 'guided');
+  document.getElementById('tabPractice').classList.toggle('active', m === 'practice');
+  cur = 0; score = 0;
+  document.getElementById('guidedCard').style.display = m === 'guided' ? 'block' : 'none';
+  document.getElementById('practiceCard').style.display = m === 'practice' ? 'block' : 'none';
+  document.getElementById('doneCard').style.display = 'none';
+  updateProgress();
+  if (m === 'guided') loadGuided(); else loadPractice();
+}
+
+loadGuided();
+</script>
+</body>
+</html>
